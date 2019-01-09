@@ -6,7 +6,7 @@ using namespace std;
 using namespace cv;
 
 void extract_into_frames(const string& video_name){
-	VideoCapture capture(0);
+	VideoCapture capture(video_name);
 	if(!capture.isOpened()){
 		cout << "Failed to open video file\n";
 		return ;
