@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+#include "keypoints_gui.h"
+
 using namespace std;
 using namespace cv;
 
@@ -53,7 +55,25 @@ void display_image(const Mat& image){
 }
 
 void preprocess_image(const Mat& in_image, Mat& out_image){
-	resize(in_image, out_image, Size(640, 480));
+	resize(in_image, out_image, Size(in_image.cols/6, in_image.rows/6));
+}
+
+void get_image_points(const vector<string>& images_path, 
+						vector<vector<Point2f>>& image_points, int num_images){
+	for(int i=0; i<num_images; ++i){
+		Mat rgb = imread(images_path[i], IMREAD_COLOR);
+		vector<Point2f> corners;
+
+		Mat3b smaller_image;
+		preprocess_image(rgb, smaller_image);
+		
+		gui::GenerateKeypoints keypoint_gui(smaller_image, corners);
+		keypoint_gui.start_processing();		
+		
+		image_points.push_back(corners);
+
+		display_image(smaller_image);
+	}
 }
 
 int main(int argc, char const *argv[]){
@@ -72,28 +92,7 @@ int main(int argc, char const *argv[]){
 
 	generate_world_points(object_points, param);
 
-	for(int i=0; i<param.num_images; ++i){
-		Mat rgb = imread(images_path[i], IMREAD_COLOR);
-		
-		Mat3b processed_image;
-		preprocess_image(rgb, processed_image);
-
-		Mat gray_image;
-		cvtColor(processed_image, gray_image, COLOR_BGR2GRAY);
-
-		vector<Point2f> corners;
-		bool found = findChessboardCorners(processed_image, param.board_size, corners);
-		
-		if(found){
-			cout << "Inside found: " << i << endl;
-			cornerSubPix(gray_image, corners, Size(11, 11), Size(-1, -1),
-						 TermCriteria( TermCriteria::EPS+TermCriteria::COUNT, 30, 0.1 ));
-			drawChessboardCorners(gray_image, param.board_size, corners, found);
-		}
-
-		display_image(processed_image);
-		display_image(gray_image);
-	}
+	get_image_points(images_path, image_points, param.num_images);
 
 	return 0;
 }
