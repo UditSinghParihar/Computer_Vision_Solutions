@@ -51,6 +51,13 @@ void play_video(const string& original_video, const string& background_video){
 	const string window_name = "Video_frames";
 	namedWindow(window_name, WINDOW_KEEPRATIO);
 	const float fps = capture1.get(CAP_PROP_FPS);
+
+	int codec = VideoWriter::fourcc('M', 'J', 'P', 'G');
+	const int width = capture1.get(CAP_PROP_FRAME_WIDTH);
+	const int height = capture1.get(CAP_PROP_FRAME_HEIGHT);
+	cout << width << "\theight:" << height << endl;
+	cv::Size video_dimensions(width, height);
+	VideoWriter writer{"combined.avi", codec, fps, video_dimensions};
 	
 	for(int i=0; ; ++i){
 		capture1 >> original_frame;
@@ -67,6 +74,8 @@ void play_video(const string& original_video, const string& background_video){
 		get_new_image(original_frame, background_frame, new_image, mask);
 
 		imshow(window_name, new_image);
+		writer.write(new_image);
+
 		waitKey(1000/fps);
 	}		
 }

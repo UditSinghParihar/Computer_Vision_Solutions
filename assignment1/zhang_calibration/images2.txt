@@ -1,0 +1,8 @@
+/home/udit/projects/cv_assignments/assignment1/reduced_images/camera_calib1.jpg
+/home/udit/projects/cv_assignments/assignment1/reduced_images/camera_calib2.jpg
+/home/udit/projects/cv_assignments/assignment1/reduced_images/camera_calib3.jpg
+/home/udit/projects/cv_assignments/assignment1/reduced_images/camera_calib4.jpg
+/home/udit/projects/cv_assignments/assignment1/reduced_images/camera_calib5.jpg
+/home/udit/projects/cv_assignments/assignment1/reduced_images/camera_calib6.jpg
+/home/udit/projects/cv_assignments/assignment1/reduced_images/camera_calib7.jpg
+/home/udit/projects/cv_assignments/assignment1/reduced_images/camera_calib8.jpg
