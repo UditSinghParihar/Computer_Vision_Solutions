@@ -17,7 +17,7 @@ struct Parameters{
 	int total_points;
 	Size board_size;
 
-	Parameters(int imgs=8, int ver=6, int hor=4):num_images{imgs},
+	Parameters(int imgs=8, int ver=5, int hor=3):num_images{imgs},
 	vertical_corners{ver}, horizontal_corners{hor}{
 		total_points = vertical_corners * horizontal_corners;
 		board_size = Size(horizontal_corners, vertical_corners);
@@ -71,8 +71,6 @@ void get_image_points(const vector<string>& images_path,
 		keypoint_gui.start_processing();		
 		
 		image_points.push_back(corners);
-
-		display_image(smaller_image);
 	}
 }
 
@@ -93,6 +91,18 @@ int main(int argc, char const *argv[]){
 	generate_world_points(object_points, param);
 
 	get_image_points(images_path, image_points, param.num_images);
+
+	Mat intrinsic = Mat(3, 3, CV_32FC1);
+	Mat distCoeffs;
+	vector<Mat> rvecs;
+	vector<Mat> tvecs;
+
+	intrinsic.at<float>(0, 0) = 1;
+    intrinsic.at<float>(1, 1) = 1;
+
+	calibrateCamera(object_points, image_points, image.size(), 
+					intrinsic, distCoeffs, rvecs, tvecs);
+
 
 	return 0;
 }
