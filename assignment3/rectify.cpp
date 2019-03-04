@@ -67,7 +67,7 @@ int main(int argc, char const *argv[]){
 		return 1;
 	}
 
-	const float scale = 2;
+	const float scale = 1.7;
 	rescale_image(rgb, rgb, scale);
 
 	Size new_size = Size(rgb.rows, rgb.cols/2);
@@ -89,7 +89,7 @@ int main(int argc, char const *argv[]){
 	stereoRectifyUncalibrated(coord1, coord2, F, new_size, H1, H2);
 	
 	Mat warped_rgb1, warped_rgb2;
-	cv::Size warped_image_size(rgb1.cols*2, rgb1.rows*2);
+	cv::Size warped_image_size(rgb1.cols*2, rgb1.rows);
 	warpPerspective(rgb1, warped_rgb1, H1, warped_image_size);
 	warpPerspective(rgb2, warped_rgb2, H2, warped_image_size);
 	
@@ -98,8 +98,10 @@ int main(int argc, char const *argv[]){
 
 	vector<Point2f> p1;
 	vector<Point2f> p2;
-	apply_sift(warped_rgb1, warped_rgb2, p1, p2);	
-	drawEpipolarLines<float, float>("Epiplines", F, warped_rgb1, warped_rgb2, p1, p2);
+	apply_sift(warped_rgb1, warped_rgb2, p1, p2);
+	vector<Point2f> p1_few{p1[0], p1[1]};
+	vector<Point2f> p2_few{p2[0], p2[1]};
+	drawEpipolarLines<float, float>("Epiplines", F, warped_rgb1, warped_rgb2, p1_few, p2_few);
 	
 	return 0;
 }

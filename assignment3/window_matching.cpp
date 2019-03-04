@@ -26,7 +26,7 @@ void split_image(const Mat& rgb, Mat& new_rgb, int offset){
 }
 
 void process_image(Mat& rgb, Mat& norm1, Mat& norm2){
-	const float scale = 2;
+	const float scale = 1.7;
 	rescale_image(rgb, rgb, scale);
 
 	Size new_size = Size(rgb.rows, rgb.cols/2);
@@ -76,9 +76,25 @@ int main(int argc, char const *argv[]){
 	}
 
 	Mat norm1, norm2;
-	process_image(rgb, norm1, norm2);
+	// process_image(rgb, norm1, norm2);
+	const float scale = 1.7;
+	rescale_image(rgb, rgb, scale);
 
-	vector<pair<Point, Point>> matches;
+	Size new_size = Size(rgb.rows, rgb.cols/2);
+	Mat3b rgb1(new_size, CV_8UC3);
+	Mat3b rgb2(new_size, CV_8UC3);
+	split_image(rgb, rgb1, 0);
+	split_image(rgb, rgb2, rgb.cols/2);
+
+	Mat img1(rgb1.size(), CV_8U);
+	Mat img2(rgb2.size(), CV_8U);
+	cvtColor(rgb1, img1, COLOR_RGB2GRAY);
+	cvtColor(rgb2, img2, COLOR_RGB2GRAY);
+
+	normalize(img1, norm1, 1, -1, NORM_MINMAX, CV_32F);
+	normalize(img2, norm2, 1, -1, NORM_MINMAX, CV_32F);
+
+	vector<Point> coord1, coord2;
 	Mat window(5, 5, CV_32F);
 	int count = 0, total=(norm1.rows * norm1.cols);
 	
@@ -87,11 +103,26 @@ int main(int argc, char const *argv[]){
 			Point keypoint1(i, j), keypoint2;
 			fill_window(norm1, keypoint1, window);		
 			corresponding_window(norm2, window, keypoint2);
-			matches.push_back(make_pair(keypoint1, keypoint2));
-			
-			cout << "Count: " << count++ << "/" << total << endl;
+			coord1.push_back(keypoint1);
+			coord2.push_back(keypoint2);
+
+			if(count%1000 == 0)
+				cout << "Count: " << count << "/" << total << endl;
+			++count;
 		}
 	}
+
+	Mat F, H1, H2;
+	F = findFundamentalMat(coord1, coord2, CV_FM_RANSAC);
+	stereoRectifyUncalibrated(coord1, coord2, F, norm1.size(), H1, H2);
+	
+	Mat warped_rgb1, warped_rgb2;
+	cv::Size warped_image_size(norm1.cols*2, norm1.rows);
+	warpPerspective(rgb1, warped_rgb1, H1, warped_image_size);
+	warpPerspective(rgb2, warped_rgb2, H2, warped_image_size);
+	
+	display_image(warped_rgb1);
+	display_image(warped_rgb2);
 
 	return 0;
 }
