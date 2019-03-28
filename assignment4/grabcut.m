@@ -1,14 +1,17 @@
 function im_out = grabcut(img_name)
 
 gamma = 20;
-im_in = imread(img_name);
+img = imread(img_name);
 
 % Convergence criterion
 E_CHANGE_THRES = 0.0001;
 
 %%% Get image dimensions
-[im_h, ~, ~] = size(im_in);
+[im_h, ~, ~] = size(img);
 
+% im_in = rgb2lab(img);
+im_in = rgb2ycbcr(img);
+% im_in = img;
 %--------------------------- I. Initialization
 
 %%% User indicates background
