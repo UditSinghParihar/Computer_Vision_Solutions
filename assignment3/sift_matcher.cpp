@@ -12,6 +12,12 @@ void display_image(const Mat& image){
 	destroyWindow("opencv_viewer");
 }
 
+void save_image(const Mat& image, string image_name){
+	image_name += ".jpg";
+	imwrite(image_name, image);
+	cout << image_name << " saved in current directory.\n";
+}
+
 void rescale_image(const Mat& in_image, Mat& out_image, float scale){
 	resize(in_image, out_image, Size(in_image.cols/scale, in_image.rows/scale));
 }
@@ -45,6 +51,7 @@ void apply_sift(const Mat& rgb1, const Mat& rgb2){
 	
 	Mat final_image;
 	drawMatches(rgb1, keypoints1, rgb2, keypoints2, matches, final_image);
+	save_image(final_image, "dense_sift");
 	display_image(final_image);
 }
 
@@ -59,7 +66,7 @@ int main(int argc, char const *argv[]){
 		return 1;
 	}
 
-	const float scale = 2;
+	const float scale = 1.1;
 	rescale_image(rgb, rgb, scale);
 
 	Size new_size = Size(rgb.rows, rgb.cols/2);

@@ -45,9 +45,10 @@ void process_image(Mat& rgb, Mat& norm1, Mat& norm2){
 }
 
 void fill_window(const Mat& norm1, const Point& kp, Mat& window){
-	for(int y=0; y<window.rows; ++y){
-		for(int x=0; x<window.cols; ++x){
-			window.at<float>(y, x) = norm1.at<float>(y+kp.x, x+kp.y);
+	const int row = window.rows, col = window.cols;
+	for(int y=kp.y-(row/2), i=0; i<row; ++y, ++i){
+		for(int x=kp.x-(col/2), j=0; j<col; ++x, ++j){
+			window.at<float>(i, j) = norm1.at<float>(y, x);
 		}
 	}
 }
@@ -61,7 +62,8 @@ void corresponding_window(const Mat& norm2, const Mat& window, Point& keypoint2)
 	double min_value, max_value;
 	Point min_point, max_point;
 	minMaxLoc(convolve_norm, &min_value, &max_value, &min_point, &max_point);
-	keypoint2 = max_point;
+	keypoint2.x = max_point.x+window.cols/2;
+	keypoint2.y = max_point.y+window.rows/2;
 }
 
 int main(int argc, char const *argv[]){
@@ -95,11 +97,12 @@ int main(int argc, char const *argv[]){
 	normalize(img2, norm2, 1, -1, NORM_MINMAX, CV_32F);
 
 	vector<Point> coord1, coord2;
-	Mat window(5, 5, CV_32F);
+	const int win_size=15; 
+	Mat window(win_size, win_size, CV_32F);
 	int count = 0, total=(norm1.rows * norm1.cols);
 	
-	for(int i=0; i<norm1.rows; ++i){
-		for(int j=0; j<norm1.cols; ++j){
+	for(int i=2*win_size; i<norm1.rows-2*win_size ; ++i){
+		for(int j=2*win_size; j<norm1.cols-2*win_size; ++j){
 			Point keypoint1(i, j), keypoint2;
 			fill_window(norm1, keypoint1, window);		
 			corresponding_window(norm2, window, keypoint2);
